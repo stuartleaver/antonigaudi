@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Header from "./ui/header";
 import RootLayout from "./layout";
+import antoniGaudiProfilePicture from "../../public/images/antoni-gaudi-1878.jpg";
 
 export default function Home() {
   return (
@@ -8,12 +9,10 @@ export default function Home() {
       <Header></Header>
       <main className="mx-auto max-w-[968px] px-5">
         <div className="mt-28 flex flex-col md:flex-row">
-          <div className="mx-auto mb-8 h-[300px] w-[300px] overflow-hidden rounded-full md:mb-0">
+          <div className="mx-auto mb-8 h-[300px] w-[300px] overflow-hidden rounded-full md:mb-0 image-morph">
             <Image
-              src="/images/antoni-gaudi-1878.jpg"
+              src={antoniGaudiProfilePicture}
               alt="Antoni Gaudi"
-              width={300}
-              height={300}
               priority
               style={{ width: "100%", height: "auto" }}
             />
