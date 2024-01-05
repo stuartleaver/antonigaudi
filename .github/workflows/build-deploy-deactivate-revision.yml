@@ -1,0 +1,51 @@
+name: Build, Deploy and Deactivate ACA revision
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+
+permissions:
+  # for `create-or-update-comment` action
+  pull-requests: write
+  issues: write
+
+jobs:
+  add-revision:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+
+    steps:
+      - name: ACR build
+        id: acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.SERVICE_PRINCIPLE }}
+          service_principal_password: ${{ secrets.SERVICE_PRINCIPLE_PASSWORD }}
+          tenant: ${{ secrets.TENANT }}
+          registry: ${{ secrets.REGISTRY }}
+          repository: ${{ secrets.REPOSITORY }}
+          image: antonigaudi
+          branch: ${{github.ref_name}}
+          tag: ${{ github.event.pull_request.head.sha }}
+
+      - name: Add revision to ACA
+        uses: Azure/aca-review-apps@v0.2.0
+        id: aca_new_revision
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP_NAME }}
+          name: ${{ secrets.REGISTRY }}
+          revision-name-suffix: ${{ env.SHORT_HASH }}
+          image: ${{ secrets.REGISTRY }}/${{ secrets.REPOSITORY }}:${{ github.event.pull_request.head.sha }}
+          
+      - name: Add comment to PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: |
+                Revision ${{ env.CONTAINERAPP_NAME }}--${{ env.SHORT_HASH }} is created.
+                ${{ steps.aca_new_revision.outputs.app-url }}
+            })
