@@ -15,6 +15,16 @@ jobs:
     if: github.event.action != 'closed'
 
     steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
       - name: ACR build
         id: acr
         uses: azure/acr-build@v1
@@ -25,7 +35,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repository: ${{ secrets.REPOSITORY }}
           image: antonigaudi
-          branch: ${{github.ref_name}}
+          branch: ${{ steps.extract_branch.outputs.branch }}
           tag: ${{ github.event.pull_request.head.sha }}
 
       - name: Add revision to ACA

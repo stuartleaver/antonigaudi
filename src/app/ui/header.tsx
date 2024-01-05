@@ -6,7 +6,7 @@ export default function Header() {
       <div className="flex">
         <div className="h-[75px] w-[75px]"></div>
         <h1 className="flex w-full flex-1 items-center justify-center text-center text-3xl font-bold">
-          Antoni Gaudi
+          Antoni Gaudi (Testing)
         </h1>
         <div className="w-[75px]"></div>
       </div>
